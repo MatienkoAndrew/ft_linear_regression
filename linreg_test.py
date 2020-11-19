@@ -13,6 +13,7 @@
 import sys
 import pandas as pd
 import numpy as np
+import os
 
 def input_km():
 	print('Please enter a mileage: ')
@@ -34,5 +35,7 @@ if __name__ == "__main__":
 		print('Positive, please. Exit...')
 		sys.exit(0)
 
-	theta = np.array(pd.read_csv('Weights.csv'))
+	theta = np.zeros((1, 2))
+	if os.path.exists('Weights.csv'):
+		theta = np.array(pd.read_csv('Weights.csv'))
 	print("Predict price =", np.abs(theta[0][0] + (theta[0][1]) * (mileage / 100000.)))
