@@ -12,16 +12,23 @@
 
 import argparse
 import pandas as pd
-import numpy as np
 from matplotlib import pyplot as plt
-from sklearn.preprocessing import StandardScaler
 from linreg.gradient_descent import GradientDescent
 from linreg.minmaxscaler import MinMaxScaler
+import sys
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument("dataset", type=str, help="input dataset")
-	args = parser.parse_args()
+	if 'data.csv' in sys.argv:
+		parser = argparse.ArgumentParser()
+		parser.add_argument("dataset", type=str, help="input dataset")
+		parser.add_argument("-w", "--weights", action="store_true", help="Weights")
+		parser.add_argument("-p", "--plot",  action="store_true", help="Plot")
+		parser.add_argument("--rmse",  action="store_true", help="MSE")
+		parser.add_argument("--mae",  action="store_true", help="MAE")
+		args = parser.parse_args()
+	else:
+		print("usage: python3 linreg_train.py data.csv")
+		exit(0)
 
 	df = pd.read_csv(args.dataset)
 
@@ -30,14 +37,29 @@ if __name__ == '__main__':
 
 	X = pd.DataFrame(df_scaled)
 	y = df['price']
-	gd = GradientDescent(plot=False)
-	gd.fit(X, y)
-	print(gd.theta)
-	y_pred = gd.predict(X)
-	# print(y_pred)
-	# print(gd.mse)
-	plt.plot(gd.mse.keys(), gd.mse.values(), marker='o', color='blue')
-	plt.show()
 
-	print(gd.mean_squared_error(y, y_pred))
-	print(gd.mae(y, y_pred))
+	plot = False
+	if args.plot:
+		plot = True
+	gd = GradientDescent(plot=plot)
+	gd.fit(X, y)
+
+	if args.weights:
+		print(gd.theta)
+	y_pred = gd.predict(X)
+
+	if args.plot:
+		plt.figure(2)
+		plt.plot(gd.mse.keys(), gd.mse.values(), marker='o', color='blue')
+		plt.xlabel('Steps')
+		plt.ylabel('MSE')
+		plt.grid(True)
+		plt.show()
+
+	if args.rmse:
+		print("Root mean squared error:", gd.mean_squared_error(y, y_pred) ** 0.5)
+
+	if args.mae:
+		print("Mean absolute error:", gd.mae(y, y_pred))
+
+	pd.DataFrame(gd.theta, columns=['theta0', 'theta1']).to_csv("Weights.csv", index=False)

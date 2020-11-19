@@ -54,5 +54,3 @@ class MinMaxScaler:
 		# 	for x in X_temp[col]:
 		# 		vals_scaled.append((x - self.min_val[i]) / (self.max_val[i] - self.min_val[i]))
 		# 	X_temp[col] = vals_scaled
-		return X_temp
-		pass
